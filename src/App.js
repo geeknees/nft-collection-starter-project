@@ -1,13 +1,13 @@
 // useEffect と useState 関数を React.js からインポートしています。
 import React, { useEffect, useState } from "react";
-import { ethers } from "ethers";
+import { ethers, utils } from "ethers";
 import "./styles/App.css";
 import twitterLogo from "./assets/twitter-logo.svg";
 import myEpicNft from "./utils/MyEpicNFT.json";
 // Constantsを宣言する: constとは値書き換えを禁止した変数を宣言する方法です。
 const TWITTER_HANDLE = "_geeknees";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-const CONTRACT_ADDRESS = "0xC57522731c5EeF35BEea73CB3705AA69537f9da3";
+const CONTRACT_ADDRESS = "0xe4B6b9b43052f96e4fFA6AbC966C38A0A3984f42";
 const RARIBLE_LINK = `https://rinkeby.rarible.com/collection/${CONTRACT_ADDRESS}`;
 
 const App = () => {
@@ -164,7 +164,9 @@ const App = () => {
           signer
         );
         console.log("Going to pop wallet now to pay gas...");
-        let nftTxn = await connectedContract.makeAnEpicNFT();
+        let nftTxn = await connectedContract.makeAnEpicNFT({
+          value: utils.parseEther("0.01")
+        });
         console.log("Mining...please wait.");
         await nftTxn.wait();
 
@@ -203,7 +205,7 @@ const App = () => {
         onClick={askContractToMintNft}
         className="cta-button connect-wallet-button"
       >
-        Mint NFT
+        Mint NFT (0.01 ETH)
       </button>
     );
 
