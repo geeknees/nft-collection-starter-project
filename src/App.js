@@ -9,11 +9,14 @@ const TWITTER_HANDLE = "_geeknees";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const OPENSEA_LINK = "";
 const TOTAL_MINT_COUNT = 50;
-const App = () => {
+const CONTRACT_ADDRESS = "0x2488D091Cdf1C3315291DE1490BEacb73E747E08";
+
+const App = () =>
   /*
    * ユーザーのウォレットアドレスを格納するために使用する状態変数を定義します。
    */
   const [currentAccount, setCurrentAccount] = useState("");
+
   /*この段階でcurrentAccountの中身は空*/
   console.log("currentAccount: ", currentAccount);
   /*
@@ -38,6 +41,7 @@ const App = () => {
       const account = accounts[0];
       console.log("Found an authorized account:", account);
       setCurrentAccount(account);
+      setupEventListener();
     } else {
       console.log("No authorized account found");
     }
@@ -64,13 +68,44 @@ const App = () => {
        * ウォレットアドレスを currentAccount に紐付けます。
        */
       setCurrentAccount(accounts[0]);
+      setupEventListener();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const setupEventListener = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        // NFT が発行されます。
+        const connectedContract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          myEpicNft.abi,
+          signer
+        );
+
+        // Event が　emit される際に、コントラクトから送信される情報を受け取っています。
+        connectedContract.on("NewEpicNFTMinted", (from, tokenId) => {
+          console.log(from, tokenId.toNumber());
+          alert(
+            `あなたのウォレットに NFT を送信しました。OpenSea に表示されるまで最大で10分かかることがあります。NFT へのリンクはこちらです: https://testnets.opensea.io/assets/${CONTRACT_ADDRESS}/${tokenId.toNumber()}`
+          );
+        });
+
+        console.log("Setup event listener!");
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
   const askContractToMintNft = async () => {
-    const CONTRACT_ADDRESS = "0x016F45904961053836fd2eC154f41eFA7c3c32c5";
     try {
       const { ethereum } = window;
       if (ethereum) {
@@ -112,6 +147,7 @@ const App = () => {
   useEffect(() => {
     checkIfWalletIsConnected();
   }, []);
+
   return (
     <div className="App">
       <div className="container">
@@ -145,4 +181,5 @@ const App = () => {
     </div>
   );
 };
+
 export default App;
