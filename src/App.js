@@ -7,9 +7,8 @@ import myEpicNft from "./utils/MyEpicNFT.json";
 // Constantsを宣言する: constとは値書き換えを禁止した変数を宣言する方法です。
 const TWITTER_HANDLE = "_geeknees";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-const OPENSEA_LINK = "";
-const TOTAL_MINT_COUNT = 50;
 const CONTRACT_ADDRESS = "0xC57522731c5EeF35BEea73CB3705AA69537f9da3";
+const RARIBLE_LINK = `https://rinkeby.rarible.com/collection/${CONTRACT_ADDRESS}`;
 
 const App = () => {
   /*
@@ -233,6 +232,16 @@ const App = () => {
               {mintButton()}
             </>
           )}
+        </div>
+        <div className="mt-5">
+          <a
+            className="footer-text"
+            href={RARIBLE_LINK}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Check out the entire collection of Gyudon NFT!
+          </a>
         </div>
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
