@@ -9,16 +9,55 @@ const TWITTER_HANDLE = "_geeknees";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const OPENSEA_LINK = "";
 const TOTAL_MINT_COUNT = 50;
-const CONTRACT_ADDRESS = "0x2488D091Cdf1C3315291DE1490BEacb73E747E08";
+const CONTRACT_ADDRESS = "0xC57522731c5EeF35BEea73CB3705AA69537f9da3";
 
-const App = () =>
+const App = () => {
   /*
    * ユーザーのウォレットアドレスを格納するために使用する状態変数を定義します。
    */
   const [currentAccount, setCurrentAccount] = useState("");
+  const [mintCount, setMintCount] = useState(0);
+  const [maxSupply, setMaxSupply] = useState(0);
 
   /*この段階でcurrentAccountの中身は空*/
   console.log("currentAccount: ", currentAccount);
+
+  const fetchMintCount = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        // NFT が発行されます。
+        const connectedContract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          myEpicNft.abi,
+          signer
+        );
+
+        // Event が　emit される際に、コントラクトから送信される情報を受け取っています。
+        connectedContract.on("NewEpicNFTMinted", (from, tokenId) => {
+          console.log(from, tokenId.toNumber());
+          alert(
+            `あなたのウォレットに NFT を送信しました。OpenSea に表示されるまで最大で10分かかることがあります。NFT へのリンクはこちらです: https://testnets.opensea.io/assets/${CONTRACT_ADDRESS}/${tokenId.toNumber()}`
+          );
+        });
+        const mintCount = await connectedContract.totalSupply();
+        setMintCount(mintCount.toNumber());
+        console.log("mintCount: ", mintCount);
+
+        const maxSupply = await connectedContract.MAX_SUPPLY();
+        setMaxSupply(maxSupply.toNumber());
+        console.log("maxSupply: ", maxSupply);
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   /*
    * ユーザーが認証可能なウォレットアドレスを持っているか確認します。
    */
@@ -146,6 +185,7 @@ const App = () =>
    */
   useEffect(() => {
     checkIfWalletIsConnected();
+    fetchMintCount();
   }, []);
 
   return (
@@ -154,6 +194,7 @@ const App = () =>
         <div className="header-container">
           <p className="header gradient-text">My NFT Collection</p>
           <p className="sub-text">あなただけの特別な NFT を Mint しよう💫</p>
+          <p className="sub-text">{`これまでに作成された ${mintCount}/${maxSupply} NFT`}</p>
           {/*条件付きレンダリングを追加しました
           // すでに接続されている場合は、
           // Connect to Walletを表示しないようにします。*/}
