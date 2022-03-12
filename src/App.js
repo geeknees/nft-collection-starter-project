@@ -18,6 +18,7 @@ const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
   const [mintCount, setMintCount] = useState(0);
   const [maxSupply, setMaxSupply] = useState(0);
+  const [minting, setMinting] = useState(false);
 
   /*この段階でcurrentAccountの中身は空*/
   console.log("currentAccount: ", currentAccount);
@@ -45,11 +46,9 @@ const App = () => {
         });
         const mintCount = await connectedContract.totalSupply();
         setMintCount(mintCount.toNumber());
-        console.log("mintCount: ", mintCount);
 
         const maxSupply = await connectedContract.MAX_SUPPLY();
         setMaxSupply(maxSupply.toNumber());
-        console.log("maxSupply: ", maxSupply);
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -154,6 +153,8 @@ const App = () => {
 
   const askContractToMintNft = async () => {
     try {
+      setMinting(true);
+
       const { ethereum } = window;
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
@@ -168,6 +169,7 @@ const App = () => {
         console.log("Mining...please wait.");
         await nftTxn.wait();
 
+        setMinting(false);
         console.log(
           `Mined, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`
         );
@@ -188,6 +190,24 @@ const App = () => {
       Connect to Wallet
     </button>
   );
+
+  const mintButton = () =>
+    minting ? (
+      <button
+        onClick={askContractToMintNft}
+        className="cta-button connect-wallet-button"
+      >
+        Minting...
+      </button>
+    ) : (
+      <button
+        onClick={askContractToMintNft}
+        className="cta-button connect-wallet-button"
+      >
+        Mint NFT
+      </button>
+    );
+
   /*
    * ページがロードされたときに useEffect()内の関数が呼び出されます。
    */
@@ -210,12 +230,7 @@ const App = () => {
           ) : (
             <>
               <p className="sub-text">{`これまでに作成された ${mintCount}/${maxSupply} NFT`}</p>
-              <button
-                onClick={askContractToMintNft}
-                className="cta-button connect-wallet-button"
-              >
-                Mint NFT
-              </button>
+              {mintButton()}
             </>
           )}
         </div>
