@@ -84,6 +84,14 @@ const App = () => {
     } else {
       console.log("No authorized account found");
     }
+
+    let chainId = await ethereum.request({ method: "eth_chainId" });
+    console.log("Connected to chain " + chainId);
+    // 0x4 は　Rinkeby の ID です。
+    const rinkebyChainId = "0x4";
+    if (chainId !== rinkebyChainId) {
+      alert("You are not connected to the Rinkeby Test Network!");
+    }
   };
 
   /*
@@ -194,19 +202,21 @@ const App = () => {
         <div className="header-container">
           <p className="header gradient-text">My NFT Collection</p>
           <p className="sub-text">あなただけの特別な NFT を Mint しよう💫</p>
-          <p className="sub-text">{`これまでに作成された ${mintCount}/${maxSupply} NFT`}</p>
           {/*条件付きレンダリングを追加しました
           // すでに接続されている場合は、
           // Connect to Walletを表示しないようにします。*/}
           {currentAccount === "" ? (
             renderNotConnectedContainer()
           ) : (
-            <button
-              onClick={askContractToMintNft}
-              className="cta-button connect-wallet-button"
-            >
-              Mint NFT
-            </button>
+            <>
+              <p className="sub-text">{`これまでに作成された ${mintCount}/${maxSupply} NFT`}</p>
+              <button
+                onClick={askContractToMintNft}
+                className="cta-button connect-wallet-button"
+              >
+                Mint NFT
+              </button>
+            </>
           )}
         </div>
         <div className="footer-container">
