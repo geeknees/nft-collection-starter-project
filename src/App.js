@@ -114,6 +114,7 @@ const App = () => {
        */
       setCurrentAccount(accounts[0]);
       setupEventListener();
+      fetchMintCount();
     } catch (error) {
       console.log(error);
     }
